@@ -3,16 +3,16 @@
 ![coverage](https://img.shields.io/badge/coverage-80%25-brightgreen)
 [![CI](https://github.com/scottnicholls36/jellyfin12-auto-parental-tags/actions/workflows/build-test-coverage.yaml/badge.svg)](https://github.com/scottnicholls36/jellyfin12-auto-parental-tags/actions/workflows/build-test-coverage.yaml)
 
-A Jellyfin plugin that uses AI to analyze movie metadata and automatically add audience target tags (kids, teens, adults).
+A Jellyfin plugin that uses AI to analyze movie and TV show metadata and automatically add audience target tags (kids, teens, adults).
 
 ## Features
 
 - **Multiple AI Provider Support**: Choose from Google Gemini, OpenAI, or LocalAI
-- Automatically analyzes movies using AI to determine target audience
+- Automatically analyzes movies and TV shows using AI to determine target audience
 - Adds one of three audience tags: `kids`, `teens`, or `adults`
 - Considers target audience rather than just content ratings
 - Recognizes that historical context matters (e.g., pre-1990 PG films often targeted adults)
-- Processes movies during library scans or on-demand
+- Processes items after library scans, or on demand with **Tag Library Now** (independent of Jellyfin's library scan)
 - Configurable to overwrite or preserve existing tags
 - Privacy-focused option with LocalAI (self-hosted, no external API calls)
 
@@ -83,13 +83,19 @@ Use the `build-and-copy` task to automatically build and copy to your local Jell
 
 1. Navigate to **Dashboard** → **Plugins** → **Auto Parental Tags**
 2. Select your **AI Provider**:
-   - **Google Gemini**: Enter your Gemini API key
+   - **Google Gemini**: Enter your Gemini API key. The default model is `gemini-2.5-flash-lite`, the lowest-cost option
    - **OpenAI**: Enter your OpenAI API key and optionally customize the model name
    - **LocalAI**: Enter your LocalAI endpoint URL and model name
 3. Configure settings:
-   - **Enable Automatic Tagging**: Turn the plugin on/off globally
-   - **Process on Library Scan**: Automatically process new movies during library scans
+   - **Enable Automatic Tagging**: Turn automatic tagging after library scans on/off
+   - **Process on Library Scan**: Process untagged items after each Jellyfin library scan
+   - **Process TV Shows**: Tag each TV series as a whole, as well as movies (on by default)
    - **Overwrite Existing Tags**: Replace existing audience tags when re-processing
+4. Click **Save**
+
+### Running Manually
+
+Click **Tag Library Now** on the plugin page to tag your library straight away, without a Jellyfin library scan. This works even when automatic tagging is off. Progress appears under **Dashboard** → **Scheduled Tasks** → **Auto Parental Tags**, where you can also add your own schedule (for example, nightly). Only one run happens at a time; a run that starts while another is in progress is skipped.
 
 ### LocalAI Setup Example
 
@@ -103,7 +109,7 @@ If you're running LocalAI locally:
 
 ## How It Works
 
-The plugin analyzes each movie using:
+The plugin analyzes each movie, and each TV series as a whole, using:
 - **Title** and **release year**
 - **Overview/synopsis**
 - **Official MPAA rating** (if available)
@@ -189,9 +195,9 @@ dotnet test /p:CollectCoverage=true /p:CoverletOutputFormat=lcov
 
 ### Data Sent to AI Services
 
-When using external AI providers (Gemini, OpenAI), the following movie metadata is sent:
-- Movie title
-- Release year
+When using external AI providers (Gemini, OpenAI), the following movie or TV series metadata is sent:
+- Title
+- Release year (first air year for a series)
 - Overview/synopsis text
 - MPAA rating
 - Genre list
@@ -211,9 +217,10 @@ When using external AI providers (Gemini, OpenAI), the following movie metadata 
 - Restart Jellyfin completely
 - Check Jellyfin logs for plugin loading errors
 
-### Movies aren't being tagged
-- Verify the plugin is enabled in configuration
-- Check that "Process on Library Scan" is enabled
+### Movies or TV shows aren't being tagged
+- Try **Tag Library Now** on the plugin page, then check **Scheduled Tasks** for the result
+- For automatic tagging, check that "Enable Automatic Tagging" and "Process on Library Scan" are on
+- For TV shows, check that "Process TV Shows" is on
 - Ensure your API key is valid and has quota remaining
 - Check Jellyfin logs for API errors or rate limiting
 
@@ -230,7 +237,7 @@ When using external AI providers (Gemini, OpenAI), the following movie metadata 
 
 ## Roadmap
 
-- [ ] Support for TV shows and series
+- [x] Support for TV shows and series
 - [ ] Manual tagging interface in web UI
 - [ ] Batch re-tagging of library subsets
 - [ ] Custom tag names/categories

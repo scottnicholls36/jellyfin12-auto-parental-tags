@@ -18,7 +18,7 @@ public class GeminiService : IAiService, IDisposable
     private readonly ILogger<GeminiService> _logger;
     private readonly HttpClient _httpClient;
     private string? _apiKey;
-    private string _modelName = "gemini-pro";
+    private string _modelName = "gemini-2.5-flash-lite";
 
     /// <summary>
     /// Initializes a new instance of the <see cref="GeminiService"/> class.
@@ -71,7 +71,7 @@ public class GeminiService : IAiService, IDisposable
     /// <summary>
     /// Sets the model name to use for Gemini API calls.
     /// </summary>
-    /// <param name="modelName">The model name (e.g., gemini-pro, gemini-1.5-pro, gemini-1.5-flash).</param>
+    /// <param name="modelName">The model name (e.g., gemini-2.5-flash-lite, gemini-2.5-flash).</param>
     public void SetModelName(string modelName)
     {
         if (!string.IsNullOrWhiteSpace(modelName))
@@ -81,21 +81,14 @@ public class GeminiService : IAiService, IDisposable
         }
     }
 
-    /// <summary>
-    /// Analyzes movie metadata to determine target audience.
-    /// </summary>
-    /// <param name="title">Movie title.</param>
-    /// <param name="year">Release year.</param>
-    /// <param name="overview">Movie overview/synopsis.</param>
-    /// <param name="officialRating">Official MPAA rating (if available).</param>
-    /// <param name="genres">Movie genres.</param>
-    /// <returns>A task representing the asynchronous operation, containing the target audience tag.</returns>
+    /// <inheritdoc />
     public async Task<string?> DetermineTargetAudienceAsync(
         string title,
         int? year,
         string? overview,
         string? officialRating,
-        string[]? genres)
+        string[]? genres,
+        TitleType titleType)
     {
         if (string.IsNullOrEmpty(_apiKey))
         {
@@ -105,7 +98,7 @@ public class GeminiService : IAiService, IDisposable
 
         try
         {
-            var prompt = BuildPrompt(title, year, overview, officialRating, genres);
+            var prompt = AudiencePrompt.Build(title, year, overview, officialRating, genres, titleType);
 
             _logger.LogDebug("Requesting audience classification for '{Title}' ({Year})", SanitizeForLog(title), year);
 
@@ -170,43 +163,6 @@ public class GeminiService : IAiService, IDisposable
             _logger.LogError(ex, "Error calling Gemini API for '{Title}': {Message}", SanitizeForLog(title), ex.Message);
             return null;
         }
-    }
-
-    private static string BuildPrompt(
-        string title,
-        int? year,
-        string? overview,
-        string? officialRating,
-        string[]? genres)
-    {
-        var prompt = $@"Analyze this movie and determine its TARGET AUDIENCE (not content rating).
-Consider that target audience is different from content appropriateness:
-- A PG movie from the 1970s might be targeted at adults despite being appropriate for children
-- A PG-13 action movie might be targeted specifically at teenagers
-- An unrated Christmas special might be clearly targeted at kids
-
-Movie Information:
-Title: {title}
-Year: {year?.ToString(CultureInfo.InvariantCulture) ?? "Unknown"}
-Official Rating: {officialRating ?? "Not Rated"}
-Genres: {(genres?.Length > 0 ? string.Join(", ", genres) : "Unknown")}
-Overview: {overview ?? "No overview available"}
-
-Respond with ONLY ONE of these three options based on the PRIMARY target audience:
-- kids (targeted at children, typically ages 2-11)
-- teens (targeted at teenagers, typically ages 12-17)
-- adults (targeted at mature audiences, ages 18+)
-
-Consider:
-1. The film's marketing and intended demographic
-2. Themes and subject matter complexity
-3. Historical context (pre-1990 PG films often targeted adults)
-4. Whether it's a franchise aimed at kids/teens/adults
-5. The sophistication level of storytelling
-
-Respond with just one word: kids, teens, or adults";
-
-        return prompt;
     }
 
     private static string ParseAudienceTag(string response)

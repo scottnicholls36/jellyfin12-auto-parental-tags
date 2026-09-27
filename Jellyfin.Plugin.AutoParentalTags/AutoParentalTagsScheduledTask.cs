@@ -36,7 +36,7 @@ public class AutoParentalTagsScheduledTask : IScheduledTask
     public string Key => "AutoParentalTags";
 
     /// <inheritdoc />
-    public string Description => "Analyzes movies and adds target audience tags (kids, teens, adults) using AI.";
+    public string Description => "Analyzes movies and TV series and adds target audience tags (kids, teens, adults) using AI. Runs independently of library scans.";
 
     /// <inheritdoc />
     public string Category => "Library";
@@ -48,7 +48,7 @@ public class AutoParentalTagsScheduledTask : IScheduledTask
 
         try
         {
-            await _libraryMonitor.Run(progress, cancellationToken).ConfigureAwait(false);
+            await _libraryMonitor.RunManualAsync(progress, cancellationToken).ConfigureAwait(false);
             _logger.LogInformation("Manual Auto Parental Tags task completed successfully");
         }
         catch (Exception ex)

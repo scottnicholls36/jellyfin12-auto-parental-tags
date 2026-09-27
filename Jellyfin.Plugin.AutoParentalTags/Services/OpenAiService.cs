@@ -115,11 +115,12 @@ public class OpenAiService : IAiService, IDisposable
         int? year,
         string? overview,
         string? officialRating,
-        string[]? genres)
+        string[]? genres,
+        TitleType titleType)
     {
         try
         {
-            var prompt = BuildPrompt(title, year, overview, officialRating, genres);
+            var prompt = AudiencePrompt.Build(title, year, overview, officialRating, genres, titleType);
 
             _logger.LogDebug("Requesting audience classification for '{Title}' ({Year})", SanitizeForLog(title), year);
 
@@ -131,7 +132,7 @@ public class OpenAiService : IAiService, IDisposable
                     new
                     {
                         role = "system",
-                        content = "You are a movie analyst that determines the target audience for films."
+                        content = "You are a media analyst that determines the target audience for movies and TV series."
                     },
                     new
                     {
@@ -197,43 +198,6 @@ public class OpenAiService : IAiService, IDisposable
             _logger.LogError(ex, "Error calling AI API for '{Title}': {Message}", SanitizeForLog(title), ex.Message);
             return null;
         }
-    }
-
-    private static string BuildPrompt(
-        string title,
-        int? year,
-        string? overview,
-        string? officialRating,
-        string[]? genres)
-    {
-        var prompt = $@"Analyze this movie and determine its TARGET AUDIENCE (not content rating).
-Consider that target audience is different from content appropriateness:
-- A PG movie from the 1970s might be targeted at adults despite being appropriate for children
-- A PG-13 action movie might be targeted specifically at teenagers
-- An unrated Christmas special might be clearly targeted at kids
-
-Movie Information:
-Title: {title}
-Year: {year?.ToString(CultureInfo.InvariantCulture) ?? "Unknown"}
-Official Rating: {officialRating ?? "Not Rated"}
-Genres: {(genres?.Length > 0 ? string.Join(", ", genres) : "Unknown")}
-Overview: {overview ?? "No overview available"}
-
-Respond with ONLY ONE of these three options based on the PRIMARY target audience:
-- kids (targeted at children, typically ages 2-11)
-- teens (targeted at teenagers, typically ages 12-17)
-- adults (targeted at mature audiences, ages 18+)
-
-Consider:
-1. The film's marketing and intended demographic
-2. Themes and subject matter complexity
-3. Historical context (pre-1990 PG films often targeted adults)
-4. Whether it's a franchise aimed at kids/teens/adults
-5. The sophistication level of storytelling
-
-Respond with just one word: kids, teens, or adults";
-
-        return prompt;
     }
 
     private static string ParseAudienceTag(string response)

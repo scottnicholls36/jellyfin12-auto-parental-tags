@@ -165,7 +165,8 @@ public class OpenAiServiceTests
             2020,
             "A test movie about adventures",
             "PG",
-            new[] { "Action", "Adventure" });
+            new[] { "Action", "Adventure" },
+            TitleType.Movie);
 
         // Assert - Will return null because we can't actually call the API
         Assert.Null(result);
@@ -188,7 +189,8 @@ public class OpenAiServiceTests
             null,
             "A test movie",
             "PG",
-            new[] { "Action" });
+            new[] { "Action" },
+            TitleType.Movie);
 
         // Assert
         Assert.Null(result);
@@ -211,7 +213,8 @@ public class OpenAiServiceTests
             2020,
             null,
             "PG",
-            new[] { "Action" });
+            new[] { "Action" },
+            TitleType.Movie);
 
         // Assert
         Assert.Null(result);
@@ -234,7 +237,8 @@ public class OpenAiServiceTests
             2020,
             "A test movie",
             null,
-            new[] { "Action" });
+            new[] { "Action" },
+            TitleType.Movie);
 
         // Assert
         Assert.Null(result);
@@ -257,7 +261,8 @@ public class OpenAiServiceTests
             2020,
             "A test movie",
             "PG",
-            null);
+            null,
+            TitleType.Movie);
 
         // Assert
         Assert.Null(result);

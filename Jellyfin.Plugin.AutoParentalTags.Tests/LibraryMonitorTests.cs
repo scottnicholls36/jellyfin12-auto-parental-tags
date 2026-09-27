@@ -10,6 +10,7 @@ using Jellyfin.Plugin.AutoParentalTags.Services;
 using MediaBrowser.Common.Configuration;
 using MediaBrowser.Controller.Entities;
 using MediaBrowser.Controller.Entities.Movies;
+using MediaBrowser.Controller.Entities.TV;
 using MediaBrowser.Controller.Library;
 using MediaBrowser.Model.Entities;
 using MediaBrowser.Model.Serialization;
@@ -224,10 +225,10 @@ public class LibraryMonitorTests : IAsyncLifetime
     }
 
     /// <summary>
-    /// Tests that ProcessMovieAsync handles movie with existing tags.
+    /// Tests that ProcessItemAsync handles movie with existing tags.
     /// </summary>
     [Fact]
-    public async Task ProcessMovieAsync_WithExistingTag_ShouldSkipWhenNotOverwriting()
+    public async Task ProcessItemAsync_WithExistingTag_ShouldSkipWhenNotOverwriting()
     {
         // Arrange
         var mockLibraryManager = new Mock<ILibraryManager>();
@@ -248,7 +249,7 @@ public class LibraryMonitorTests : IAsyncLifetime
         };
 
         // Act
-        await monitor.ProcessMovieAsync(movie, mockAiService.Object, false, CancellationToken.None);
+        await monitor.ProcessItemAsync(movie, mockAiService.Object, false, CancellationToken.None);
 
         // Assert
         mockAiService.Verify(
@@ -257,15 +258,16 @@ public class LibraryMonitorTests : IAsyncLifetime
                 It.IsAny<int?>(),
                 It.IsAny<string?>(),
                 It.IsAny<string?>(),
-                It.IsAny<string[]?>()),
+                It.IsAny<string[]?>(),
+                It.IsAny<TitleType>()),
             Times.Never);
     }
 
     /// <summary>
-    /// Tests that ProcessMovieAsync processes movie without existing tags.
+    /// Tests that ProcessItemAsync processes movie without existing tags.
     /// </summary>
     [Fact]
-    public async Task ProcessMovieAsync_WithoutExistingTag_ShouldCallAiService()
+    public async Task ProcessItemAsync_WithoutExistingTag_ShouldCallAiService()
     {
         // Arrange
         var mockLibraryManager = new Mock<ILibraryManager>();
@@ -277,7 +279,8 @@ public class LibraryMonitorTests : IAsyncLifetime
                 It.IsAny<int?>(),
                 It.IsAny<string?>(),
                 It.IsAny<string?>(),
-                It.IsAny<string[]?>()))
+                It.IsAny<string[]?>(),
+                It.IsAny<TitleType>()))
             .ReturnsAsync("teens");
 
         var monitor = new LibraryMonitor(
@@ -295,7 +298,7 @@ public class LibraryMonitorTests : IAsyncLifetime
         };
 
         // Act
-        await monitor.ProcessMovieAsync(movie, mockAiService.Object, false, CancellationToken.None);
+        await monitor.ProcessItemAsync(movie, mockAiService.Object, false, CancellationToken.None);
 
         // Assert
         mockAiService.Verify(
@@ -304,15 +307,16 @@ public class LibraryMonitorTests : IAsyncLifetime
                 2020,
                 "A test movie",
                 "PG-13",
-                It.IsAny<string[]?>()),
+                It.IsAny<string[]?>(),
+                TitleType.Movie),
             Times.Once);
     }
 
     /// <summary>
-    /// Tests that ProcessMovieAsync adds tag to movie.
+    /// Tests that ProcessItemAsync adds tag to movie.
     /// </summary>
     [Fact]
-    public async Task ProcessMovieAsync_WhenAiReturnsTag_ShouldAddTagToMovie()
+    public async Task ProcessItemAsync_WhenAiReturnsTag_ShouldAddTagToMovie()
     {
         // Arrange
         var mockLibraryManager = new Mock<ILibraryManager>();
@@ -324,7 +328,8 @@ public class LibraryMonitorTests : IAsyncLifetime
                 It.IsAny<int?>(),
                 It.IsAny<string?>(),
                 It.IsAny<string?>(),
-                It.IsAny<string[]?>()))
+                It.IsAny<string[]?>(),
+                It.IsAny<TitleType>()))
             .ReturnsAsync("adults");
 
         var monitor = new LibraryMonitor(
@@ -340,17 +345,17 @@ public class LibraryMonitorTests : IAsyncLifetime
         };
 
         // Act
-        await monitor.ProcessMovieAsync(movie, mockAiService.Object, false, CancellationToken.None);
+        await monitor.ProcessItemAsync(movie, mockAiService.Object, false, CancellationToken.None);
 
         // Assert
         Assert.Contains("adults", movie.Tags);
     }
 
     /// <summary>
-    /// Tests that ProcessMovieAsync removes old tags when overwriting.
+    /// Tests that ProcessItemAsync removes old tags when overwriting.
     /// </summary>
     [Fact]
-    public async Task ProcessMovieAsync_WithOverwriteTrue_ShouldReplaceExistingTag()
+    public async Task ProcessItemAsync_WithOverwriteTrue_ShouldReplaceExistingTag()
     {
         // Arrange
         var mockLibraryManager = new Mock<ILibraryManager>();
@@ -362,7 +367,8 @@ public class LibraryMonitorTests : IAsyncLifetime
                 It.IsAny<int?>(),
                 It.IsAny<string?>(),
                 It.IsAny<string?>(),
-                It.IsAny<string[]?>()))
+                It.IsAny<string[]?>(),
+                It.IsAny<TitleType>()))
             .ReturnsAsync("adults");
 
         var monitor = new LibraryMonitor(
@@ -378,7 +384,7 @@ public class LibraryMonitorTests : IAsyncLifetime
         };
 
         // Act
-        await monitor.ProcessMovieAsync(movie, mockAiService.Object, true, CancellationToken.None);
+        await monitor.ProcessItemAsync(movie, mockAiService.Object, true, CancellationToken.None);
 
         // Assert
         Assert.Contains("adults", movie.Tags);
@@ -387,10 +393,10 @@ public class LibraryMonitorTests : IAsyncLifetime
     }
 
     /// <summary>
-    /// Tests that ProcessMovieAsync handles null response from AI.
+    /// Tests that ProcessItemAsync handles null response from AI.
     /// </summary>
     [Fact]
-    public async Task ProcessMovieAsync_WhenAiReturnsNull_ShouldNotAddTag()
+    public async Task ProcessItemAsync_WhenAiReturnsNull_ShouldNotAddTag()
     {
         // Arrange
         var mockLibraryManager = new Mock<ILibraryManager>();
@@ -402,7 +408,8 @@ public class LibraryMonitorTests : IAsyncLifetime
                 It.IsAny<int?>(),
                 It.IsAny<string?>(),
                 It.IsAny<string?>(),
-                It.IsAny<string[]?>()))
+                It.IsAny<string[]?>(),
+                It.IsAny<TitleType>()))
             .ReturnsAsync((string?)null);
 
         var monitor = new LibraryMonitor(
@@ -420,17 +427,17 @@ public class LibraryMonitorTests : IAsyncLifetime
         var initialTagCount = movie.Tags.Length;
 
         // Act
-        await monitor.ProcessMovieAsync(movie, mockAiService.Object, false, CancellationToken.None);
+        await monitor.ProcessItemAsync(movie, mockAiService.Object, false, CancellationToken.None);
 
         // Assert
         Assert.Equal(initialTagCount, movie.Tags.Length);
     }
 
     /// <summary>
-    /// Tests that ProcessMovieAsync handles empty string response from AI.
+    /// Tests that ProcessItemAsync handles empty string response from AI.
     /// </summary>
     [Fact]
-    public async Task ProcessMovieAsync_WhenAiReturnsEmpty_ShouldNotAddTag()
+    public async Task ProcessItemAsync_WhenAiReturnsEmpty_ShouldNotAddTag()
     {
         // Arrange
         var mockLibraryManager = new Mock<ILibraryManager>();
@@ -442,7 +449,8 @@ public class LibraryMonitorTests : IAsyncLifetime
                 It.IsAny<int?>(),
                 It.IsAny<string?>(),
                 It.IsAny<string?>(),
-                It.IsAny<string[]?>()))
+                It.IsAny<string[]?>(),
+                It.IsAny<TitleType>()))
             .ReturnsAsync(string.Empty);
 
         var monitor = new LibraryMonitor(
@@ -460,17 +468,17 @@ public class LibraryMonitorTests : IAsyncLifetime
         var initialTagCount = movie.Tags.Length;
 
         // Act
-        await monitor.ProcessMovieAsync(movie, mockAiService.Object, false, CancellationToken.None);
+        await monitor.ProcessItemAsync(movie, mockAiService.Object, false, CancellationToken.None);
 
         // Assert
         Assert.Equal(initialTagCount, movie.Tags.Length);
     }
 
     /// <summary>
-    /// Tests that ProcessMovieAsync does not add duplicate tags.
+    /// Tests that ProcessItemAsync does not add duplicate tags.
     /// </summary>
     [Fact]
-    public async Task ProcessMovieAsync_WithExistingIdenticalTag_ShouldNotAddDuplicate()
+    public async Task ProcessItemAsync_WithExistingIdenticalTag_ShouldNotAddDuplicate()
     {
         // Arrange
         var mockLibraryManager = new Mock<ILibraryManager>();
@@ -482,7 +490,8 @@ public class LibraryMonitorTests : IAsyncLifetime
                 It.IsAny<int?>(),
                 It.IsAny<string?>(),
                 It.IsAny<string?>(),
-                It.IsAny<string[]?>()))
+                It.IsAny<string[]?>(),
+                It.IsAny<TitleType>()))
             .ReturnsAsync("kids");
 
         var monitor = new LibraryMonitor(
@@ -498,11 +507,246 @@ public class LibraryMonitorTests : IAsyncLifetime
         };
 
         // Act
-        await monitor.ProcessMovieAsync(movie, mockAiService.Object, true, CancellationToken.None);
+        await monitor.ProcessItemAsync(movie, mockAiService.Object, true, CancellationToken.None);
 
         // Assert
         Assert.Single(movie.Tags);
         Assert.Equal("kids", movie.Tags[0]);
+    }
+
+    /// <summary>
+    /// Tests that TV series are queried and classified as series when enabled.
+    /// </summary>
+    [Fact]
+    public async Task Run_WhenTvShowsEnabled_ShouldTagSeries()
+    {
+        // Arrange
+        SetPluginInstance(new PluginConfiguration
+        {
+            EnableAutoTagging = true,
+            ProcessOnLibraryScan = true,
+            ProcessTvShows = true,
+            ApiKey = "key"
+        });
+
+        var movie = new TestMovie { Name = "Movie" };
+        var series = new TestSeries { Name = "Series" };
+        InternalItemsQuery? capturedQuery = null;
+        var mockLibraryManager = new Mock<ILibraryManager>();
+        mockLibraryManager.Setup(x => x.GetItemList(It.IsAny<InternalItemsQuery>()))
+            .Callback<InternalItemsQuery>(q => capturedQuery = q)
+            .Returns(new List<BaseItem> { movie, series });
+
+        var aiService = new StubAiService("kids");
+        var monitor = CreateMonitor(mockLibraryManager.Object, aiService);
+
+        // Act
+        await monitor.Run(new Progress<double>(), CancellationToken.None);
+
+        // Assert
+        Assert.NotNull(capturedQuery);
+        Assert.Contains(BaseItemKind.Series, capturedQuery!.IncludeItemTypes);
+        Assert.Contains("kids", movie.Tags);
+        Assert.Contains("kids", series.Tags);
+        Assert.Equal(new[] { TitleType.Movie, TitleType.Series }, aiService.TitleTypes);
+    }
+
+    /// <summary>
+    /// Tests that TV series are skipped when TV show processing is disabled.
+    /// </summary>
+    [Fact]
+    public async Task Run_WhenTvShowsDisabled_ShouldOnlyTagMovies()
+    {
+        // Arrange
+        SetPluginInstance(new PluginConfiguration
+        {
+            EnableAutoTagging = true,
+            ProcessOnLibraryScan = true,
+            ProcessTvShows = false,
+            ApiKey = "key"
+        });
+
+        var movie = new TestMovie { Name = "Movie" };
+        var series = new TestSeries { Name = "Series" };
+        InternalItemsQuery? capturedQuery = null;
+        var mockLibraryManager = new Mock<ILibraryManager>();
+        mockLibraryManager.Setup(x => x.GetItemList(It.IsAny<InternalItemsQuery>()))
+            .Callback<InternalItemsQuery>(q => capturedQuery = q)
+            .Returns(new List<BaseItem> { movie, series });
+
+        var aiService = new StubAiService("teens");
+        var monitor = CreateMonitor(mockLibraryManager.Object, aiService);
+
+        // Act
+        await monitor.Run(new Progress<double>(), CancellationToken.None);
+
+        // Assert
+        Assert.Equal(new[] { BaseItemKind.Movie }, capturedQuery!.IncludeItemTypes);
+        Assert.Contains("teens", movie.Tags);
+        Assert.DoesNotContain("teens", series.Tags);
+        Assert.Equal(1, aiService.Calls);
+    }
+
+    /// <summary>
+    /// Tests that a manual run ignores the automatic tagging and library scan settings.
+    /// </summary>
+    [Fact]
+    public async Task RunManualAsync_WhenLibraryScanProcessingDisabled_ShouldStillProcess()
+    {
+        // Arrange
+        SetPluginInstance(new PluginConfiguration
+        {
+            EnableAutoTagging = false,
+            ProcessOnLibraryScan = false,
+            ApiKey = "key"
+        });
+
+        var movie = new TestMovie { Name = "Movie" };
+        var mockLibraryManager = new Mock<ILibraryManager>();
+        mockLibraryManager.Setup(x => x.GetItemList(It.IsAny<InternalItemsQuery>()))
+            .Returns(new List<BaseItem> { movie });
+
+        var aiService = new StubAiService("adults");
+        var monitor = CreateMonitor(mockLibraryManager.Object, aiService);
+
+        // Act
+        await monitor.Run(new Progress<double>(), CancellationToken.None);
+        var callsAfterScan = aiService.Calls;
+        await monitor.RunManualAsync(new Progress<double>(), CancellationToken.None);
+
+        // Assert
+        Assert.Equal(0, callsAfterScan);
+        Assert.Equal(1, aiService.Calls);
+        Assert.Contains("adults", movie.Tags);
+    }
+
+    /// <summary>
+    /// Tests that a manual run does nothing when the plugin is not loaded.
+    /// </summary>
+    [Fact]
+    public async Task RunManualAsync_WhenPluginNotLoaded_ShouldReturnEarly()
+    {
+        // Arrange
+        var mockLibraryManager = new Mock<ILibraryManager>();
+        var monitor = CreateMonitor(mockLibraryManager.Object, new StubAiService("kids"));
+        var progressReports = new List<double>();
+
+        // Act
+        await monitor.RunManualAsync(new SyncProgress(progressReports), CancellationToken.None);
+
+        // Assert
+        mockLibraryManager.Verify(x => x.GetItemList(It.IsAny<InternalItemsQuery>()), Times.Never);
+        Assert.Equal(new[] { 100d }, progressReports);
+    }
+
+    /// <summary>
+    /// Tests that LocalAI can run without an API key.
+    /// </summary>
+    [Fact]
+    public async Task RunManualAsync_WithLocalAiAndNoApiKey_ShouldProcess()
+    {
+        // Arrange
+        SetPluginInstance(new PluginConfiguration
+        {
+            Provider = AiProvider.LocalAI,
+            ApiKey = string.Empty
+        });
+
+        var movie = new TestMovie { Name = "Movie" };
+        var mockLibraryManager = new Mock<ILibraryManager>();
+        mockLibraryManager.Setup(x => x.GetItemList(It.IsAny<InternalItemsQuery>()))
+            .Returns(new List<BaseItem> { movie });
+
+        var aiService = new StubAiService("kids");
+        var monitor = CreateMonitor(mockLibraryManager.Object, aiService);
+
+        // Act
+        await monitor.RunManualAsync(new Progress<double>(), CancellationToken.None);
+
+        // Assert
+        Assert.Equal(1, aiService.Calls);
+    }
+
+    /// <summary>
+    /// Tests that a second run is skipped while one is already in progress.
+    /// </summary>
+    [Fact]
+    public async Task RunManualAsync_WhenAlreadyRunning_ShouldSkipSecondRun()
+    {
+        // Arrange
+        SetPluginInstance(new PluginConfiguration { ApiKey = "key" });
+
+        var mockLibraryManager = new Mock<ILibraryManager>();
+        mockLibraryManager.Setup(x => x.GetItemList(It.IsAny<InternalItemsQuery>()))
+            .Returns(new List<BaseItem> { new TestMovie { Name = "Movie" } });
+
+        var aiService = new BlockingAiService();
+        var monitor = CreateMonitor(mockLibraryManager.Object, aiService);
+
+        // Act
+        var firstRun = monitor.RunManualAsync(new Progress<double>(), CancellationToken.None);
+        await aiService.Started.Task.WaitAsync(TimeSpan.FromSeconds(5));
+        await monitor.RunManualAsync(new Progress<double>(), CancellationToken.None);
+        aiService.Release.SetResult();
+        await firstRun.WaitAsync(TimeSpan.FromSeconds(5));
+
+        // Assert
+        Assert.Equal(1, aiService.Calls);
+        mockLibraryManager.Verify(x => x.GetItemList(It.IsAny<InternalItemsQuery>()), Times.Once);
+    }
+
+    /// <summary>
+    /// Tests that a TV series is classified with the series prompt type.
+    /// </summary>
+    [Fact]
+    public async Task ProcessItemAsync_WithSeries_ShouldRequestSeriesClassification()
+    {
+        // Arrange
+        var mockAiService = new Mock<IAiService>();
+        mockAiService.Setup(x => x.DetermineTargetAudienceAsync(
+                It.IsAny<string>(),
+                It.IsAny<int?>(),
+                It.IsAny<string?>(),
+                It.IsAny<string?>(),
+                It.IsAny<string[]?>(),
+                It.IsAny<TitleType>()))
+            .ReturnsAsync("teens");
+
+        var monitor = CreateMonitor(Mock.Of<ILibraryManager>(), new StubAiService("kids"));
+        var series = new TestSeries
+        {
+            Name = "Test Series",
+            ProductionYear = 2005,
+            Tags = Array.Empty<string>()
+        };
+
+        // Act
+        await monitor.ProcessItemAsync(series, mockAiService.Object, false, CancellationToken.None);
+
+        // Assert
+        mockAiService.Verify(
+            x => x.DetermineTargetAudienceAsync(
+                "Test Series",
+                2005,
+                It.IsAny<string?>(),
+                It.IsAny<string?>(),
+                It.IsAny<string[]?>(),
+                TitleType.Series),
+            Times.Once);
+        Assert.Contains("teens", series.Tags);
+    }
+
+    private static LibraryMonitor CreateMonitor(ILibraryManager libraryManager, IAiService aiService)
+    {
+        var mockAiServiceFactory = new Mock<AiServiceFactory>(NullLoggerFactory.Instance);
+        mockAiServiceFactory.Setup(x => x.CreateService(It.IsAny<PluginConfiguration>()))
+            .Returns(aiService);
+
+        return new LibraryMonitor(
+            libraryManager,
+            NullLogger<LibraryMonitor>.Instance,
+            mockAiServiceFactory.Object,
+            TimeSpan.Zero);
     }
 
     private static void ClearPluginInstance()
@@ -549,6 +793,17 @@ internal class TestMovie : Movie
 }
 
 /// <summary>
+/// Test double for Series that skips repository calls.
+/// </summary>
+internal class TestSeries : Series
+{
+    public override Task UpdateToRepositoryAsync(ItemUpdateType updateReason, CancellationToken cancellationToken = default)
+    {
+        return Task.CompletedTask;
+    }
+}
+
+/// <summary>
 /// Simple AI service stub for tests.
 /// </summary>
 internal sealed class StubAiService : IAiService
@@ -559,6 +814,66 @@ internal sealed class StubAiService : IAiService
     {
         _tag = tag;
     }
+
+    public int Calls { get; private set; }
+
+    public List<TitleType> TitleTypes { get; } = new();
+
+    public void Dispose()
+    {
+    }
+
+    public void SetApiKey(string apiKey)
+    {
+    }
+
+    public void SetEndpoint(string endpoint)
+    {
+    }
+
+    public void SetModelName(string modelName)
+    {
+    }
+
+    public Task<string?> DetermineTargetAudienceAsync(string title, int? year, string? overview, string? officialRating, string[]? genres, TitleType titleType)
+    {
+        Calls++;
+        TitleTypes.Add(titleType);
+        return Task.FromResult<string?>(_tag);
+    }
+
+    public Task<string[]> GetAvailableModelsAsync()
+    {
+        return Task.FromResult(Array.Empty<string>());
+    }
+}
+
+/// <summary>
+/// Progress reporter that records values synchronously.
+/// </summary>
+internal sealed class SyncProgress : IProgress<double>
+{
+    private readonly List<double> _reports;
+
+    public SyncProgress(List<double> reports)
+    {
+        _reports = reports;
+    }
+
+    public void Report(double value)
+    {
+        _reports.Add(value);
+    }
+}
+
+/// <summary>
+/// AI service stub that blocks until released, for testing overlapping runs.
+/// </summary>
+internal sealed class BlockingAiService : IAiService
+{
+    public TaskCompletionSource Started { get; } = new(TaskCreationOptions.RunContinuationsAsynchronously);
+
+    public TaskCompletionSource Release { get; } = new(TaskCreationOptions.RunContinuationsAsynchronously);
 
     public int Calls { get; private set; }
 
@@ -578,10 +893,12 @@ internal sealed class StubAiService : IAiService
     {
     }
 
-    public Task<string?> DetermineTargetAudienceAsync(string title, int? year, string? overview, string? officialRating, string[]? genres)
+    public async Task<string?> DetermineTargetAudienceAsync(string title, int? year, string? overview, string? officialRating, string[]? genres, TitleType titleType)
     {
         Calls++;
-        return Task.FromResult<string?>(_tag);
+        Started.TrySetResult();
+        await Release.Task.ConfigureAwait(false);
+        return "kids";
     }
 
     public Task<string[]> GetAvailableModelsAsync()
