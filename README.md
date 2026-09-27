@@ -250,7 +250,6 @@ This project is licensed under the terms specified in [LICENSE](LICENSE).
 
 ## Support
 
-- **Issues**: [GitHub Issues](https://github.com/scottnicholls36/jellyfin12-auto-parental-tags/issues)
 - **Jellyfin Forum**: [Plugins section](https://forum.jellyfin.org/)
 
 ## Credits
