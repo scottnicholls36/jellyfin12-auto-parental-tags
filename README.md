@@ -1,7 +1,7 @@
 # Auto Parental Tags
 
 ![coverage](https://img.shields.io/badge/coverage-80%25-brightgreen)
-[![CI](https://github.com/benklop/auto-parental-tags/actions/workflows/build-test-coverage.yaml/badge.svg)](https://github.com/benklop/auto-parental-tags/actions/workflows/build-test-coverage.yaml)
+[![CI](https://github.com/scottnicholls36/jellyfin12-auto-parental-tags/actions/workflows/build-test-coverage.yaml/badge.svg)](https://github.com/scottnicholls36/jellyfin12-auto-parental-tags/actions/workflows/build-test-coverage.yaml)
 
 A Jellyfin plugin that uses AI to analyze movie metadata and automatically add audience target tags (kids, teens, adults).
 
@@ -65,8 +65,8 @@ Updates then appear in Jellyfin automatically when a new release is published.
 
 ```bash
 # Clone the repository
-git clone https://github.com/benklop/auto-parental-tags.git
-cd auto-parental-tags
+git clone https://github.com/scottnicholls36/jellyfin12-auto-parental-tags.git
+cd jellyfin12-auto-parental-tags
 
 # Build the plugin
 dotnet publish --configuration=Release Jellyfin.Plugin.AutoParentalTags.sln
@@ -250,6 +250,9 @@ This project is licensed under the terms specified in [LICENSE](LICENSE).
 
 ## Support
 
-- **Issues**: [GitHub Issues](https://github.com/benklop/auto-parental-tags/issues)
-- **Discussions**: [GitHub Discussions](https://github.com/benklop/auto-parental-tags/discussions)
+- **Issues**: [GitHub Issues](https://github.com/scottnicholls36/jellyfin12-auto-parental-tags/issues)
 - **Jellyfin Forum**: [Plugins section](https://forum.jellyfin.org/)
+
+## Credits
+
+Based on [benklop/auto-parental-tags](https://github.com/benklop/auto-parental-tags) by benklop.
