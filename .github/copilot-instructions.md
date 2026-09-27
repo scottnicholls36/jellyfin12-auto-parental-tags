@@ -79,6 +79,7 @@ Plugin location after build:
 4. **Review and merge** the prepare PR (version formats are now correct)
 5. **Publish** the draft release on GitHub
 6. **Automated deployment** triggers via [publish.yaml](../.github/workflows/publish.yaml)
+   - Builds the plugin zip, attaches it (with `.md5`/`.sha256` checksums) to the release, and adds the version to `manifest.json` on the `gh-pages` branch via [scripts/update_manifest.py](../scripts/update_manifest.py). Jellyfin installs from `https://raw.githubusercontent.com/scottnicholls36/jellyfin12-auto-parental-tags/gh-pages/manifest.json`
 
 ### Testing
 

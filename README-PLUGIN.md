@@ -35,6 +35,10 @@ A Jellyfin plugin that uses AI to analyze movie metadata and automatically add a
 
 ## Installation
 
+Add `https://raw.githubusercontent.com/scottnicholls36/jellyfin12-auto-parental-tags/gh-pages/manifest.json` as a repository under Dashboard → Plugins → Repositories, then install **Auto Parental Tags** from the Catalogue.
+
+To install manually instead:
+
 1. Build the plugin using the provided build task
 2. Copy the built DLL to your Jellyfin plugins directory: `[jellyfin-data-dir]/plugins/Jellyfin.Plugin.AutoParentalTags/`
 3. Restart Jellyfin
