@@ -736,6 +736,64 @@ public class LibraryMonitorTests : IAsyncLifetime
         Assert.Contains("teens", series.Tags);
     }
 
+    /// <summary>
+    /// Tests that a run stops at the first error that would affect every item.
+    /// </summary>
+    [Fact]
+    public async Task RunManualAsync_WhenAiServiceUnavailable_ShouldStopAfterFirstItem()
+    {
+        // Arrange
+        SetPluginInstance(new PluginConfiguration { ApiKey = "key" });
+
+        var movies = new List<BaseItem>
+        {
+            new TestMovie { Name = "Movie 1" },
+            new TestMovie { Name = "Movie 2" },
+            new TestMovie { Name = "Movie 3" }
+        };
+        var mockLibraryManager = new Mock<ILibraryManager>();
+        mockLibraryManager.Setup(x => x.GetItemList(It.IsAny<InternalItemsQuery>()))
+            .Returns(movies);
+
+        var aiService = new ThrowingAiService(new AiServiceUnavailableException("Gemini API rejected the request with 402 PaymentRequired"));
+        var monitor = CreateMonitor(mockLibraryManager.Object, aiService);
+        var progressReports = new List<double>();
+
+        // Act
+        await monitor.RunManualAsync(new SyncProgress(progressReports), CancellationToken.None);
+
+        // Assert
+        Assert.Equal(1, aiService.Calls);
+        Assert.Equal(100, progressReports.Last());
+    }
+
+    /// <summary>
+    /// Tests that an ordinary error on one item does not stop the run.
+    /// </summary>
+    [Fact]
+    public async Task RunManualAsync_WhenOneItemFails_ShouldContinueWithNextItem()
+    {
+        // Arrange
+        SetPluginInstance(new PluginConfiguration { ApiKey = "key" });
+
+        var mockLibraryManager = new Mock<ILibraryManager>();
+        mockLibraryManager.Setup(x => x.GetItemList(It.IsAny<InternalItemsQuery>()))
+            .Returns(new List<BaseItem>
+            {
+                new TestMovie { Name = "Movie 1" },
+                new TestMovie { Name = "Movie 2" }
+            });
+
+        var aiService = new ThrowingAiService(new InvalidOperationException("unexpected response"));
+        var monitor = CreateMonitor(mockLibraryManager.Object, aiService);
+
+        // Act
+        await monitor.RunManualAsync(new Progress<double>(), CancellationToken.None);
+
+        // Assert
+        Assert.Equal(2, aiService.Calls);
+    }
+
     private static LibraryMonitor CreateMonitor(ILibraryManager libraryManager, IAiService aiService)
     {
         var mockAiServiceFactory = new Mock<AiServiceFactory>(NullLoggerFactory.Instance);
@@ -899,6 +957,48 @@ internal sealed class BlockingAiService : IAiService
         Started.TrySetResult();
         await Release.Task.ConfigureAwait(false);
         return "kids";
+    }
+
+    public Task<string[]> GetAvailableModelsAsync()
+    {
+        return Task.FromResult(Array.Empty<string>());
+    }
+}
+
+/// <summary>
+/// AI service stub that always throws the given exception.
+/// </summary>
+internal sealed class ThrowingAiService : IAiService
+{
+    private readonly Exception _exception;
+
+    public ThrowingAiService(Exception exception)
+    {
+        _exception = exception;
+    }
+
+    public int Calls { get; private set; }
+
+    public void Dispose()
+    {
+    }
+
+    public void SetApiKey(string apiKey)
+    {
+    }
+
+    public void SetEndpoint(string endpoint)
+    {
+    }
+
+    public void SetModelName(string modelName)
+    {
+    }
+
+    public Task<string?> DetermineTargetAudienceAsync(string title, int? year, string? overview, string? officialRating, string[]? genres, TitleType titleType)
+    {
+        Calls++;
+        return Task.FromException<string?>(_exception);
     }
 
     public Task<string[]> GetAvailableModelsAsync()

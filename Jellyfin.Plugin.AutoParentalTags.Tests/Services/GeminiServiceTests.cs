@@ -138,7 +138,7 @@ public class GeminiServiceTests
     /// Tests that DetermineTargetAudienceAsync can handle null year.
     /// </summary>
     [Fact]
-    public async Task DetermineTargetAudienceAsync_WithNullYear_ShouldReturnNull()
+    public async Task DetermineTargetAudienceAsync_WithNullYear_ShouldHandleGracefully()
     {
         // Arrange
         var mockLogger = new Mock<ILogger<GeminiService>>();
@@ -146,23 +146,24 @@ public class GeminiServiceTests
         service.SetApiKey("test-key");
 
         // Act
-        var result = await service.DetermineTargetAudienceAsync(
+        var exception = await Record.ExceptionAsync(() => service.DetermineTargetAudienceAsync(
             "Test Movie",
             null,
             "A test movie",
             "PG",
             new[] { "Action" },
-            TitleType.Movie);
+            TitleType.Movie));
 
-        // Assert - Returns null because we can't actually call the API
-        Assert.Null(result);
+        // Assert - Missing metadata must not cause errors. With network access the fake key is
+        // rejected (400 API_KEY_INVALID), which stops the run; without it the request fails and returns null
+        Assert.True(exception is null or AiServiceUnavailableException, exception?.ToString());
     }
 
     /// <summary>
     /// Tests that DetermineTargetAudienceAsync can handle null overview.
     /// </summary>
     [Fact]
-    public async Task DetermineTargetAudienceAsync_WithNullOverview_ShouldReturnNull()
+    public async Task DetermineTargetAudienceAsync_WithNullOverview_ShouldHandleGracefully()
     {
         // Arrange
         var mockLogger = new Mock<ILogger<GeminiService>>();
@@ -170,23 +171,24 @@ public class GeminiServiceTests
         service.SetApiKey("test-key");
 
         // Act
-        var result = await service.DetermineTargetAudienceAsync(
+        var exception = await Record.ExceptionAsync(() => service.DetermineTargetAudienceAsync(
             "Test Movie",
             2020,
             null,
             "PG",
             new[] { "Action" },
-            TitleType.Movie);
+            TitleType.Movie));
 
-        // Assert - Returns null because we can't actually call the API
-        Assert.Null(result);
+        // Assert - Missing metadata must not cause errors. With network access the fake key is
+        // rejected (400 API_KEY_INVALID), which stops the run; without it the request fails and returns null
+        Assert.True(exception is null or AiServiceUnavailableException, exception?.ToString());
     }
 
     /// <summary>
     /// Tests that DetermineTargetAudienceAsync can handle null rating.
     /// </summary>
     [Fact]
-    public async Task DetermineTargetAudienceAsync_WithNullRating_ShouldReturnNull()
+    public async Task DetermineTargetAudienceAsync_WithNullRating_ShouldHandleGracefully()
     {
         // Arrange
         var mockLogger = new Mock<ILogger<GeminiService>>();
@@ -194,23 +196,24 @@ public class GeminiServiceTests
         service.SetApiKey("test-key");
 
         // Act
-        var result = await service.DetermineTargetAudienceAsync(
+        var exception = await Record.ExceptionAsync(() => service.DetermineTargetAudienceAsync(
             "Test Movie",
             2020,
             "A test movie",
             null,
             new[] { "Action" },
-            TitleType.Movie);
+            TitleType.Movie));
 
-        // Assert - Returns null because we can't actually call the API
-        Assert.Null(result);
+        // Assert - Missing metadata must not cause errors. With network access the fake key is
+        // rejected (400 API_KEY_INVALID), which stops the run; without it the request fails and returns null
+        Assert.True(exception is null or AiServiceUnavailableException, exception?.ToString());
     }
 
     /// <summary>
     /// Tests that DetermineTargetAudienceAsync can handle null genres.
     /// </summary>
     [Fact]
-    public async Task DetermineTargetAudienceAsync_WithNullGenres_ShouldReturnNull()
+    public async Task DetermineTargetAudienceAsync_WithNullGenres_ShouldHandleGracefully()
     {
         // Arrange
         var mockLogger = new Mock<ILogger<GeminiService>>();
@@ -218,16 +221,17 @@ public class GeminiServiceTests
         service.SetApiKey("test-key");
 
         // Act
-        var result = await service.DetermineTargetAudienceAsync(
+        var exception = await Record.ExceptionAsync(() => service.DetermineTargetAudienceAsync(
             "Test Movie",
             2020,
             "A test movie",
             "PG",
             null,
-            TitleType.Movie);
+            TitleType.Movie));
 
-        // Assert - Returns null because we can't actually call the API
-        Assert.Null(result);
+        // Assert - Missing metadata must not cause errors. With network access the fake key is
+        // rejected (400 API_KEY_INVALID), which stops the run; without it the request fails and returns null
+        Assert.True(exception is null or AiServiceUnavailableException, exception?.ToString());
     }
 
     /// <summary>

@@ -169,6 +169,13 @@ public class OpenAiService : IAiService, IDisposable
                     SanitizeForLog(title),
                     response.StatusCode,
                     errorContent);
+
+                if (AiServiceUnavailableException.IsFatal(response.StatusCode, errorContent))
+                {
+                    throw new AiServiceUnavailableException(
+                        $"AI API rejected the request with {(int)response.StatusCode} {response.StatusCode}");
+                }
+
                 return null;
             }
 
@@ -193,7 +200,7 @@ public class OpenAiService : IAiService, IDisposable
             _logger.LogWarning("No valid response from AI API for '{Title}'", SanitizeForLog(title));
             return null;
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not AiServiceUnavailableException)
         {
             _logger.LogError(ex, "Error calling AI API for '{Title}': {Message}", SanitizeForLog(title), ex.Message);
             return null;

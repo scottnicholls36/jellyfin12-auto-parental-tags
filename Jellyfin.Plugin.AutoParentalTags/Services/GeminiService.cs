@@ -18,7 +18,7 @@ public class GeminiService : IAiService, IDisposable
     private readonly ILogger<GeminiService> _logger;
     private readonly HttpClient _httpClient;
     private string? _apiKey;
-    private string _modelName = "gemini-2.5-flash-lite";
+    private string _modelName = "gemini-3.5-flash-lite";
 
     /// <summary>
     /// Initializes a new instance of the <see cref="GeminiService"/> class.
@@ -71,7 +71,7 @@ public class GeminiService : IAiService, IDisposable
     /// <summary>
     /// Sets the model name to use for Gemini API calls.
     /// </summary>
-    /// <param name="modelName">The model name (e.g., gemini-2.5-flash-lite, gemini-2.5-flash).</param>
+    /// <param name="modelName">The model name (e.g., gemini-3.5-flash-lite, gemini-3.5-flash).</param>
     public void SetModelName(string modelName)
     {
         if (!string.IsNullOrWhiteSpace(modelName))
@@ -130,6 +130,13 @@ public class GeminiService : IAiService, IDisposable
                     SanitizeForLog(title),
                     response.StatusCode,
                     errorContent);
+
+                if (AiServiceUnavailableException.IsFatal(response.StatusCode, errorContent))
+                {
+                    throw new AiServiceUnavailableException(
+                        $"Gemini API rejected the request with {(int)response.StatusCode} {response.StatusCode}");
+                }
+
                 return null;
             }
 
@@ -158,7 +165,7 @@ public class GeminiService : IAiService, IDisposable
             _logger.LogWarning("No valid response from Gemini API for '{Title}'", SanitizeForLog(title));
             return null;
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not AiServiceUnavailableException)
         {
             _logger.LogError(ex, "Error calling Gemini API for '{Title}': {Message}", SanitizeForLog(title), ex.Message);
             return null;

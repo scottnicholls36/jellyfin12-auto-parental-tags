@@ -56,7 +56,7 @@ Or use the VS Code task: `build-and-copy`
 
 1. Navigate to Dashboard → Plugins → Auto Parental Tags
 2. Select your AI Provider:
-   - **Google Gemini**: Enter your Gemini API key (default model: `gemini-2.5-flash-lite`)
+   - **Google Gemini**: Enter your Gemini API key (default model: `gemini-3.5-flash-lite`; needs billing enabled in Google AI Studio)
    - **OpenAI**: Enter your OpenAI API key and optionally customize the model
    - **LocalAI**: Enter your LocalAI endpoint URL and model name
 3. Configure settings:

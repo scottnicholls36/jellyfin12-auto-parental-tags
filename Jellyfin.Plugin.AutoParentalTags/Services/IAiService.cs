@@ -36,6 +36,7 @@ public interface IAiService : IDisposable
     /// <param name="genres">Item genres.</param>
     /// <param name="titleType">Whether the item is a movie or a TV series.</param>
     /// <returns>A task representing the asynchronous operation, containing the target audience tag (kids, teens, or adults).</returns>
+    /// <exception cref="AiServiceUnavailableException">The provider rejected the request in a way that affects every item, such as an invalid key, no credit or an unknown model.</exception>
     Task<string?> DetermineTargetAudienceAsync(
         string title,
         int? year,

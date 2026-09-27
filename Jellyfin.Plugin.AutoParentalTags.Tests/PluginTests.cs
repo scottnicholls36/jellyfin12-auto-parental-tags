@@ -11,6 +11,7 @@ namespace Jellyfin.Plugin.AutoParentalTags.Tests;
 /// <summary>
 /// Tests for the Plugin class.
 /// </summary>
+[Collection("Plugin Instance Tests")]
 public class PluginTests
 {
     /// <summary>

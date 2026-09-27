@@ -18,6 +18,7 @@ namespace Jellyfin.Plugin.AutoParentalTags.Tests;
 /// <summary>
 /// Tests for AutoParentalTagsScheduledTask.
 /// </summary>
+[Collection("Plugin Instance Tests")]
 public class AutoParentalTagsScheduledTaskTests
 {
     /// <summary>
