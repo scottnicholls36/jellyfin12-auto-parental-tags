@@ -36,7 +36,7 @@ public class PluginConfiguration : BasePluginConfiguration
         Provider = AiProvider.Gemini;
         ApiKey = string.Empty;
         ApiEndpoint = "http://localhost:8080";
-        ModelName = "gemini-2.5-flash-lite";
+        ModelName = "gemini-3.5-flash-lite";
         EnableAutoTagging = true;
         ProcessOnLibraryScan = true;
         ProcessTvShows = true;

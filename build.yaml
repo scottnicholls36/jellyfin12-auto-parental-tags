@@ -1,7 +1,7 @@
 ---
 name: "Auto Parental Tags"
 guid: "eb5d7894-8eef-4b36-aa6f-5d124e828ce1"
-version: "1.1.0"
+version: "1.2.0"
 targetAbi: "12.1.0.0"
 framework: "net10.0"
 overview: "Automatically tag movies and TV shows with target audience using AI"
@@ -13,7 +13,5 @@ owner: "scottnicholls36"
 artifacts:
   - "Jellyfin.Plugin.AutoParentalTags.dll"
 changelog: |-
-  - Tag TV series as well as movies (new "Process TV Shows" option, on by default)
-  - Add "Tag Library Now" button to run tagging independently of Jellyfin's library scan
-  - Default Gemini model is now gemini-2.5-flash-lite
-  - LocalAI no longer requires an API key to run
+  - Default Gemini model is now gemini-3.5-flash-lite (gemini-2.5-flash-lite is closed to new users)
+  - Stop a run at the first error that affects every item (invalid key, no credit, unknown model) instead of repeating it for each title

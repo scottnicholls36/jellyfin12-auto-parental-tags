@@ -167,6 +167,16 @@ public class LibraryMonitor : ILibraryPostScanTask
                     var progressPercent = (double)processedCount / totalCount * 100;
                     progress?.Report(progressPercent);
                 }
+                catch (AiServiceUnavailableException ex)
+                {
+                    // Every remaining item would fail the same way, so stop instead of repeating the error
+                    _logger.LogError(
+                        "Stopping Auto Parental Tags after {Count} of {Total} items: {Message}. Check the API key, billing and model in the plugin settings, then run again",
+                        processedCount,
+                        totalCount,
+                        ex.Message);
+                    break;
+                }
                 catch (Exception ex)
                 {
                     _logger.LogError(ex, "Error processing '{Title}': {Message}", SanitizeForLog(item.Name), ex.Message);

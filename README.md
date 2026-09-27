@@ -83,7 +83,7 @@ Use the `build-and-copy` task to automatically build and copy to your local Jell
 
 1. Navigate to **Dashboard** → **Plugins** → **Auto Parental Tags**
 2. Select your **AI Provider**:
-   - **Google Gemini**: Enter your Gemini API key. The default model is `gemini-2.5-flash-lite`, the lowest-cost option
+   - **Google Gemini**: Enter your Gemini API key. The default model is `gemini-3.5-flash-lite`, the lowest-cost option. Gemini API access needs billing (prepaid credit) on your Google AI Studio project
    - **OpenAI**: Enter your OpenAI API key and optionally customize the model name
    - **LocalAI**: Enter your LocalAI endpoint URL and model name
 3. Configure settings:
@@ -223,6 +223,10 @@ When using external AI providers (Gemini, OpenAI), the following movie or TV ser
 - For TV shows, check that "Process TV Shows" is on
 - Ensure your API key is valid and has quota remaining
 - Check Jellyfin logs for API errors or rate limiting
+- A run stops at the first error that would affect every item, and logs "Stopping Auto Parental Tags". Common causes:
+  - **402 PaymentRequired / "prepayment credits are depleted"**: add credit to your project in [Google AI Studio](https://ai.studio/projects)
+  - **404 NotFound / "model ... is no longer available"**: pick a current model on the plugin page (for example `gemini-3.5-flash-lite`)
+  - **401 / 403, or 400 "API key not valid"**: check the API key
 
 ### Tags are incorrect
 - Try "Overwrite Existing Tags" to re-process with improved prompts
