@@ -2,16 +2,16 @@
 
 ![coverage](https://img.shields.io/badge/coverage-80%25-brightgreen)
 
-A Jellyfin plugin that uses AI to analyze movie metadata and automatically add audience target tags (kids, teens, adults).
+A Jellyfin plugin that uses AI to analyze movie and TV show metadata and automatically add audience target tags (kids, teens, adults).
 
 ## Features
 
 - **Multiple AI Provider Support**: Choose from Google Gemini, OpenAI, or LocalAI
-- Automatically analyzes movies using AI
+- Automatically analyzes movies and TV shows using AI
 - Adds one of three audience tags: `kids`, `teens`, or `adults`
 - Considers target audience rather than just content ratings
 - Recognizes that historical context matters (e.g., pre-1990 PG films often targeted adults)
-- Processes movies during library scans or on-demand
+- Processes items after library scans, or on demand with **Tag Library Now**
 - Configurable to overwrite or preserve existing tags
 
 ## Supported AI Providers
@@ -56,13 +56,15 @@ Or use the VS Code task: `build-and-copy`
 
 1. Navigate to Dashboard → Plugins → Auto Parental Tags
 2. Select your AI Provider:
-   - **Google Gemini**: Enter your Gemini API key
+   - **Google Gemini**: Enter your Gemini API key (default model: `gemini-2.5-flash-lite`)
    - **OpenAI**: Enter your OpenAI API key and optionally customize the model
    - **LocalAI**: Enter your LocalAI endpoint URL and model name
 3. Configure settings:
-   - **Enable Automatic Tagging**: Turn the plugin on/off
-   - **Process on Library Scan**: Automatically process new movies during library scans
+   - **Enable Automatic Tagging**: Turn automatic tagging after library scans on/off
+   - **Process on Library Scan**: Process untagged items after each Jellyfin library scan
+   - **Process TV Shows**: Tag each TV series as a whole, as well as movies
    - **Overwrite Existing Tags**: Replace existing audience tags when processing
+4. Click **Tag Library Now** to run immediately, independent of Jellyfin's library scan (progress under Dashboard → Scheduled Tasks)
 
 ### LocalAI Setup Example
 
@@ -74,7 +76,7 @@ If you're running LocalAI locally:
 
 ## How It Works
 
-The plugin analyzes each movie using:
+The plugin analyzes each movie, and each TV series as a whole, using:
 - Title and release year
 - Overview/synopsis
 - Official MPAA rating (if available)

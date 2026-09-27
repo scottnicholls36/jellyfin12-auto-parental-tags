@@ -113,7 +113,8 @@ public class GeminiServiceTests
             2020,
             "A test movie",
             "PG",
-            new[] { "Action", "Adventure" });
+            new[] { "Action", "Adventure" },
+            TitleType.Movie);
 
         // Assert
         Assert.Null(result);
@@ -150,7 +151,8 @@ public class GeminiServiceTests
             null,
             "A test movie",
             "PG",
-            new[] { "Action" });
+            new[] { "Action" },
+            TitleType.Movie);
 
         // Assert - Returns null because we can't actually call the API
         Assert.Null(result);
@@ -173,7 +175,8 @@ public class GeminiServiceTests
             2020,
             null,
             "PG",
-            new[] { "Action" });
+            new[] { "Action" },
+            TitleType.Movie);
 
         // Assert - Returns null because we can't actually call the API
         Assert.Null(result);
@@ -196,7 +199,8 @@ public class GeminiServiceTests
             2020,
             "A test movie",
             null,
-            new[] { "Action" });
+            new[] { "Action" },
+            TitleType.Movie);
 
         // Assert - Returns null because we can't actually call the API
         Assert.Null(result);
@@ -219,7 +223,8 @@ public class GeminiServiceTests
             2020,
             "A test movie",
             "PG",
-            null);
+            null,
+            TitleType.Movie);
 
         // Assert - Returns null because we can't actually call the API
         Assert.Null(result);

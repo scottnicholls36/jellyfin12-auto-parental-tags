@@ -36,9 +36,10 @@ public class PluginConfiguration : BasePluginConfiguration
         Provider = AiProvider.Gemini;
         ApiKey = string.Empty;
         ApiEndpoint = "http://localhost:8080";
-        ModelName = "gemini-pro";
+        ModelName = "gemini-2.5-flash-lite";
         EnableAutoTagging = true;
         ProcessOnLibraryScan = true;
+        ProcessTvShows = true;
         OverwriteExistingTags = false;
     }
 
@@ -68,9 +69,14 @@ public class PluginConfiguration : BasePluginConfiguration
     public bool EnableAutoTagging { get; set; }
 
     /// <summary>
-    /// Gets or sets a value indicating whether to process movies on library scan.
+    /// Gets or sets a value indicating whether to process the library after each Jellyfin library scan.
     /// </summary>
     public bool ProcessOnLibraryScan { get; set; }
+
+    /// <summary>
+    /// Gets or sets a value indicating whether TV series are tagged as well as movies.
+    /// </summary>
+    public bool ProcessTvShows { get; set; }
 
     /// <summary>
     /// Gets or sets a value indicating whether to overwrite existing audience tags.
