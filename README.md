@@ -60,7 +60,7 @@ cd auto-parental-tags
 dotnet publish --configuration=Release Jellyfin.Plugin.AutoParentalTags.sln
 
 # The built DLL will be in:
-# Jellyfin.Plugin.AutoParentalTags/bin/Release/net9.0/publish/
+# Jellyfin.Plugin.AutoParentalTags/bin/Release/net10.0/publish/
 ```
 
 #### VS Code Task (Development)
@@ -117,8 +117,8 @@ It then asks the AI to determine the **target audience** (not just content ratin
 
 ## Requirements
 
-- **Jellyfin**: 10.9.x or higher
-- **.NET Runtime**: 9.0
+- **Jellyfin**: 12.1.0 or higher
+- **.NET Runtime**: 10.0
 - **AI Provider** (one of):
   - Google Gemini API key (free tier available)
   - OpenAI API key (paid)
