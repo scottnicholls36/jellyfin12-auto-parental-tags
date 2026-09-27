@@ -1,0 +1,20 @@
+[
+  {
+    "guid": "eb5d7894-8eef-4b36-aa6f-5d124e828ce1",
+    "name": "Auto Parental Tags",
+    "description": "Uses AI (Google Gemini, OpenAI, or LocalAI) to analyze movie metadata and automatically add audience target tags (kids, teens, adults). Considers target audience rather than just content ratings.",
+    "overview": "Automatically tag movies with target audience using AI",
+    "owner": "scottnicholls36",
+    "category": "Metadata",
+    "versions": [
+      {
+        "version": "1.0.0.0",
+        "changelog": "## What's Changed\n* Target Jellyfin 12.1 and .NET 10; publish plugin repository manifest by @scottnicholls36 in https://github.com/scottnicholls36/jellyfin12-auto-parental-tags/pull/1\n* Grant publish upload job write access to release assets by @scottnicholls36 in https://github.com/scottnicholls36/jellyfin12-auto-parental-tags/pull/2\n\n## New Contributors\n* @scottnicholls36 made their first contribution in https://github.com/scottnicholls36/jellyfin12-auto-parental-tags/pull/1\n\n**Full Changelog**: https://github.com/scottnicholls36/jellyfin12-auto-parental-tags/commits/v1.0.0.0",
+        "targetAbi": "12.1.0.0",
+        "sourceUrl": "https://github.com/scottnicholls36/jellyfin12-auto-parental-tags/releases/download/v1.0.0.0/auto-parental-tags_1.0.0.0.zip",
+        "checksum": "333536b675785824edd561efc9d8d51c",
+        "timestamp": "2026-09-27T11:20:25Z"
+      }
+    ]
+  }
+]
