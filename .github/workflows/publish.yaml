@@ -9,8 +9,8 @@ jobs:
   build:
     uses: jellyfin/jellyfin-meta-plugins/.github/workflows/build.yaml@master
     with:
-      dotnet-version: "9.0.*"
-      dotnet-target: "net9.0"
+      dotnet-version: "10.0.*"
+      dotnet-target: "net10.0"
   upload:
     runs-on: ubuntu-latest
     needs:
@@ -37,13 +37,64 @@ jobs:
         with:
           upload_url: ${{ github.event.release.upload_url }}
           asset_path: ./*
-  generate:
+  manifest:
     runs-on: ubuntu-latest
     needs:
       - upload
+    permissions:
+      contents: write
+    concurrency:
+      group: plugin-manifest
+      cancel-in-progress: false
     steps:
-      - name: Jellyfin plugin repo
-        uses: Kevinjil/jellyfin-plugin-repo-action@v0.4.3
+      - name: Checkout Repository
+        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
         with:
-          githubToken: ${{ secrets.GITHUB_TOKEN }}
-          repository: ${{ github.repository }}
+          fetch-depth: 0
+      - name: Download Artifact
+        uses: actions/download-artifact@v6
+        with:
+          name: build-artifact
+          path: artifacts
+      - name: Checkout manifest branch
+        run: |-
+          if git ls-remote --exit-code --heads origin gh-pages > /dev/null; then
+            git worktree add pages origin/gh-pages
+          else
+            git worktree add --orphan -b gh-pages pages
+          fi
+      - name: Update manifest.json
+        env:
+          TAG: ${{ github.event.release.tag_name }}
+          PUBLISHED_AT: ${{ github.event.release.published_at }}
+          RELEASE_BODY: ${{ github.event.release.body }}
+        run: |-
+          zip_path=$(find artifacts -maxdepth 1 -name '*.zip' | head -n 1)
+          if [[ -z "$zip_path" ]]; then
+            echo "No plugin zip found in build artifact" >&2
+            exit 1
+          fi
+          zip_name=$(basename "$zip_path")
+          yq -o=json build.yaml > build.json
+          printf '%s' "$RELEASE_BODY" > changelog.md
+          python3 scripts/update_manifest.py \
+            --config build.json \
+            --zip "$zip_path" \
+            --source-url "https://github.com/${{ github.repository }}/releases/download/${TAG}/${zip_name}" \
+            --timestamp "$PUBLISHED_AT" \
+            --changelog changelog.md \
+            --manifest pages/manifest.json
+      - name: Commit manifest
+        working-directory: pages
+        env:
+          TAG: ${{ github.event.release.tag_name }}
+        run: |-
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add manifest.json
+          if git diff --cached --quiet; then
+            echo "Manifest unchanged"
+            exit 0
+          fi
+          git commit -m "Update plugin manifest for ${TAG}"
+          git push origin HEAD:gh-pages

@@ -1,6 +1,6 @@
 # Copilot Instructions for Auto Parental Tags
 
-This is a **Jellyfin plugin** (C# .NET 9.0) that uses AI services to automatically tag movies with target audience levels (kids, teens, adults).
+This is a **Jellyfin plugin** (C# .NET 10.0) that uses AI services to automatically tag movies with target audience levels (kids, teens, adults).
 
 ## Architecture Overview
 
@@ -47,7 +47,7 @@ The configuration page HTML is served via embedded resource path pattern in `Plu
 ### Build & Deploy
 
 **VS Code Tasks** (defined in workspace settings):
-- `build`: Runs `dotnet publish --configuration=Debug` to output DLL to `bin/Debug/net9.0/publish/`
+- `build`: Runs `dotnet publish --configuration=Debug` to output DLL to `bin/Debug/net10.0/publish/`
 - `make-plugin-dir`: Creates Jellyfin plugin directory (uses config: `jellyfinLinuxDataDir`)
 - `copy-dll`: Copies DLL to active Jellyfin instance
 - `build-and-copy`: Composite task running all three sequentially
@@ -55,7 +55,7 @@ The configuration page HTML is served via embedded resource path pattern in `Plu
 **Manual commands:**
 ```bash
 dotnet publish --configuration=Release Jellyfin.Plugin.AutoParentalTags.sln
-# Output: Jellyfin.Plugin.AutoParentalTags/bin/Release/net9.0/publish/
+# Output: Jellyfin.Plugin.AutoParentalTags/bin/Release/net10.0/publish/
 ```
 
 Plugin location after build:
@@ -79,6 +79,7 @@ Plugin location after build:
 4. **Review and merge** the prepare PR (version formats are now correct)
 5. **Publish** the draft release on GitHub
 6. **Automated deployment** triggers via [publish.yaml](../.github/workflows/publish.yaml)
+   - Builds the plugin zip, attaches it (with `.md5`/`.sha256` checksums) to the release, and adds the version to `manifest.json` on the `gh-pages` branch via [scripts/update_manifest.py](../scripts/update_manifest.py). Jellyfin installs from `https://raw.githubusercontent.com/scottnicholls36/jellyfin12-auto-parental-tags/gh-pages/manifest.json`
 
 ### Testing
 
